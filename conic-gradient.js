@@ -22,12 +22,17 @@ var _ = self.ConicGradient = function(o) {
 
 	this.canvas = document.createElement("canvas");
 	this.context = this.canvas.getContext("2d");
+	this.element = o.element;
 
 	this.repeating = !!o.repeating;
 
-	this.size = o.size || Math.max(innerWidth, innerHeight);
+	this.dimensions = {
+		height: o.size || o.element.offsetHeight,
+		width: o.size || o.element.offsetWidth
+	}
 
-	this.canvas.width = this.canvas.height = this.size;
+	this.canvas.width = this.dimensions.width
+	this.canvas.height = this.dimensions.height;
 
 	var stops = o.stops;
 
@@ -134,7 +139,7 @@ _.prototype = {
 	},
 
 	get r() {
-		return Math.sqrt(2) * this.size;
+		return Math.sqrt(Math.pow(this.dimensions.height, 2) + Math.pow(this.dimensions.width, 2));
 	},
 
 	// Paint the conical gradient on the canvas
@@ -145,8 +150,8 @@ _.prototype = {
 		var radius = this.r;
 		// if the gradient center is specified, take the center co-ords from that,
 		// otherwise default to 'center center' (50% 50%).
-		var x = this.center != null ? this.center.x : this.size / 2;
-		var y = this.center != null ? this.center.y : x;
+		var x = this.center != null ? this.center.x : this.dimensions.width / 2;
+		var y = this.center != null ? this.center.y : this.dimensions.height / 2;
 
 		var stopIndex = 0; // The index of the current color
 		var stop = this.stops[stopIndex], prevStop;
@@ -293,50 +298,32 @@ _.ColorStop.colorToRGBA = function(color) {
 // at bottom -> 50%, 100%
 //
 // * Other css length units such as `em` and `rem` are not supported yet.
-_.GradientCenter = function(gradient, position) {
-	canvas = gradient.canvas;
-	var flipped = false
-		, temp = null
-		, parts = position.match(/^at\s+(.+?)(?:\s+(.+?))?$/);
+_.GradientCenter = function(gradient, pos_string) {
+	var element = gradient.element
+		, dimensions = gradient.dimensions
+		, pos_string = pos_string.replace(/^at\s+/, '')
+		, parts = null
+		, position;
 
-	if (parts[2] == null) {
-		parts[2] = 'center';
-	}
-	var flipped = /^at\s+(?:top|bottom)(?:\s+)?(?:right|left|center)?$/.test(position);
-	if (flipped) {
-		temp = parts[1];
-		parts[1] = parts[2];
-		parts[2] = temp;
-	}
+	// temporarily put the fontsize on the dummy for getting background position
+	dummy.style.fontSize = window.getComputedStyle(element).fontSize;
+	dummy.style.backgroundPosition = pos_string;
+	position = window.getComputedStyle(dummy).backgroundPosition;
+	parts = position.split(' ');
 
 	return {
-		x: _.GradientCenter.stringToPosition(parts[1], canvas.width),
-		y: _.GradientCenter.stringToPosition(parts[2], canvas.height)
+		x: _.GradientCenter.stringToPosition(parts[0], element, dimensions.width),
+		y: _.GradientCenter.stringToPosition(parts[1], element, dimensions.height)
 	};
 };
 
 // Get the position in CSS pixels from a given position string (like 5px, 30%, top, right, center)
 // For CSS length values, this works only with `px` and `%` right now.
-_.GradientCenter.stringToPosition = function(position, dimension) {
-	var parts = position.match(/^(?:(center|top|bottom|right|left|([\d.]+)(%|px)?))$/)
-	var pos = 0;
-	if (parts[1]) {
-		if (parts[1] == 'top' || parts[1] == 'left') {
-			pos = 0;
-		} else if (parts[1] == 'bottom' || parts[1] == 'right') {
-			pos = dimension;
-		} else if (parts[1] == 'center') {
-			pos = dimension/2;
-		} else {
-			var unit = parts[3];
-			if (unit == 'px' || parts[2] === "0" && !unit) {
-				pos = parts[2];
-			} else if (unit == '%') {
-				pos = parts[2] * dimension / 100;
-			}
-		}
-	}
-	return pos;
+_.GradientCenter.stringToPosition = function(position, element, dimension) {
+	var parts = position.match(/(\d+)([^\d]+)/)
+		, value = parts[1]
+		, unit = parts[2];
+	return (unit === '%') ? dimension * value / 100 : value;
 };
 
 })();
@@ -350,17 +337,40 @@ if (self.StyleFix) {
 
 		if (!dummy.style.backgroundImage) {
 			// Not supported, use polyfill
-			StyleFix.register(function(css, raw) {
-				if (css.indexOf("conic-gradient") > -1) {
-					css = css.replace(/(?:repeating-)?conic-gradient\(\s*((?:\([^()]+\)|[^;()}])+?)\)/g, function(gradient, stops) {
-						return new ConicGradient({
-							stops: stops,
-							repeating: gradient.indexOf("repeating-") > -1
+			StyleFix.register(function(src, raw, src_el) {
+				if (src.indexOf("conic-gradient") > -1) {
+					// Stylefix.register would set `raw=false` and return the element if the css is inlined
+					if (!raw) {
+						src = src.replace(/(?:repeating-)?conic-gradient\(\s*((?:\([^()]+\)|[^;()}])+?)\)/g, function(gradient, stops) {
+							return new ConicGradient({
+								stops: stops,
+								repeating: gradient.indexOf("repeating-") > -1,
+								element: src_el
+							});
 						});
-					});
+					} else {
+						// else, if the css source is the <style> tag,
+						// then parse the ast, get the element and pass it down with the other args
+						ast = css.parse(src);
+						rules = ast.stylesheet.rules;
+						for(var i = 0; i < rules.length; i++) {
+							rule = rules[i];
+							element = document.querySelector(rule.selectors[0]);
+							for(var j = 0; j < rule.declarations.length; j++) {
+								decl = rule.declarations[j];
+								decl.value = decl.value.replace(/(?:repeating-)?conic-gradient\(\s*((?:\([^()]+\)|[^;()}])+?)\)/g, function(gradient, stops) {
+									return new ConicGradient({
+										stops: stops,
+										repeating: gradient.indexOf("repeating-") > -1,
+										element: element
+									});
+								});
+							}
+						}
+						src = css.stringify(ast);
+					}
 				}
-
-				return css;
+				return src;
 			});
 		}
 	})();

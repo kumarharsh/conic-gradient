@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Shifting Centers</title>
+	<link rel="stylesheet" href="style.css">
+	<style>
+		html {
+			background: black;
+		}
+		body {
+			background-color: transparent;
+			color: white;
+		}
+		.decorators > div {
+			display: inline-block;
+			width: 50px;
+			height: 50px;
+			margin: 5px;
+			border-radius: 50%;
+		}
+		div.gradient {
+			display: flex;
+			margin: 10px;
+		}
+		div.gradient > div {
+			flex: 0 0 auto;
+			width: 150px;
+			height: 150px;
+			margin-right: 10px;
+			display: inline-block;
+		}
+		div.gradient > pre {
+			flex-grow: 1;
+			padding: 5px;
+			white-space: pre-wrap;
+			font-family: Consolas, Monaco, monospace;
+			background: hsl(200, 20%, 25%) linear-gradient(rgba(0,0,0,.1) 50%, transparent 0);
+			background-origin: content-box;
+			background-size: auto 3em;
+			background-attachment: local;
+			color: white;
+			font-size: 120%;
+			line-height: 1.5;
+			margin: 0;
+		}
+		#grad-1 {
+			background: conic-gradient(at 30px 80%, #f06, rgba(0,0,0,.5)), conic-gradient(silver 25%, #eee 0 50%, silver 0 75%, #eee 0);
+			background-size: auto, 1em 1em;
+		}
+		#grad-2 {
+			background: conic-gradient(at top right, #ff0, #c80);
+		}
+		#grad-3 {
+			background: #0ac repeating-conic-gradient(at bottom, hsla(0,0%,100%,.2) 0 15deg, hsla(0,0%,100%,0) 0 30deg);
+		}
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+	<script src="css-browserify.js"></script>
+	<script src="conic-gradient.js"></script>
+	<script src="index.js"></script>
+</head>
+<body>
+	<header>
+		<h2>Shifting Centers</h2>
+		<div class="decorators">
+			<div style="background: conic-gradient(at top left, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+			<div style="background: conic-gradient(at top, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+			<div style="background: conic-gradient(at top right, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+			<div style="background: conic-gradient(at right, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+			<div style="background: conic-gradient(at bottom right, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+			<div style="background: conic-gradient(at bottom, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+			<div style="background: conic-gradient(at bottom left, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+			<div style="background: conic-gradient(at left, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+		</div>
+	</header>
+	<div class="gradient">
+		<div id="grad-1"></div>
+		<pre><code>background: conic-gradient(at 30px 80%, #f06, rgba(0,0,0,.5)), conic-gradient(silver 25%, #eee 0 50%, silver 0 75%, #eee 0);
+background-size: auto, 1em 1em;
+		</code></pre>
+	</div>
+	<div class="gradient">
+		<div id="grad-2"></div>
+		<pre><code>background: conic-gradient(at top right, #ff0, #c80);
+		</code></pre>
+	</div>
+	<div class="gradient">
+		<div id="grad-3"></div>
+		<pre><code>background: #0ac repeating-conic-gradient(at bottom, hsla(0,0%,100%,.2) 0 15deg, hsla(0,0%,100%,0) 0 30deg);
+		</code></pre>
+	</div>
+	<div class="gradient">
+		<div style="background: conic-gradient(at 50px 180px, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+		<pre><code>background: conic-gradient(at 50px 180px, red, yellow, lime, aqua, blue, magenta, red);
+border-radius: 50%;
+		</code></pre>
+	</div>
+	<div class="gradient">
+		<div style="background: conic-gradient(at left 20px, red, yellow, lime, aqua, blue, magenta, red); border-radius: 50%;"></div>
+		<pre><code>background: conic-gradient(at left 20px, red, yellow, lime, aqua, blue, magenta, red);
+		</code></pre>
+	</div>
+	<div class="gradient">
+		<div style="background: radial-gradient(circle at 40% 75px, #000000 3%, rgba(0, 0, 0, 0.3) 10%, rgba(0, 0, 0, 0) 30%), conic-gradient(at 40% 75px, red, orange, lime, aqua, blue, magenta, red), radial-gradient(closest-side at 40% 75px, #444444 0%, #444444 1.15292%, #bbbbbb 0%, #bbbbbb 1.44115%, #444444 0%, #444444 1.80144%, #bbbbbb 0%, #bbbbbb 2.2518%, #444444 0%, #444444 2.81475%, #bbbbbb 0%, #bbbbbb 3.51844%, #444444 0%, #444444 4.39805%, #bbbbbb 0%, #bbbbbb 5.49756%, #444444 0%, #444444 6.87195%, #bbbbbb 0%, #bbbbbb 8.58993%, #444444 0%, #444444 10.73742%, #bbbbbb 0%, #bbbbbb 13.42177%, #444444 0%, #444444 16.77722%, #bbbbbb 0%, #bbbbbb 20.97152%, #444444 0%, #444444 26.2144%, #bbbbbb 0%, #bbbbbb 32.768%, #444444 0%, #444444 40.96%, #bbbbbb 0%, #bbbbbb 51.2%, #444444 0%, #444444 64%, #bbbbbb 0%, #bbbbbb 80%, #444444 0%, #444444 100%), repeating-conic-gradient(at 40% 75px, #bbb 0 3.125%, #444 0 6.25%);
+  background-blend-mode: normal, multiply, exclusion, normal;
+  background-position: center center;
+  background-size: 100% 100%;"></div>
+		<pre><code>background: radial-gradient(circle at 40% 75px, #000000 3%, rgba(0, 0, 0, 0.3) 10%, rgba(0, 0, 0, 0) 30%), conic-gradient(at 40% 75px, red, orange, lime, aqua, blue, magenta, red), radial-gradient(closest-side at 40% 75px, #444444 0%, #444444 1.15292%, #bbbbbb 0%, #bbbbbb 1.44115%, #444444 0%, #444444 1.80144%, #bbbbbb 0%, #bbbbbb 2.2518%, #444444 0%, #444444 2.81475%, #bbbbbb 0%, #bbbbbb 3.51844%, #444444 0%, #444444 4.39805%, #bbbbbb 0%, #bbbbbb 5.49756%, #444444 0%, #444444 6.87195%, #bbbbbb 0%, #bbbbbb 8.58993%, #444444 0%, #444444 10.73742%, #bbbbbb 0%, #bbbbbb 13.42177%, #444444 0%, #444444 16.77722%, #bbbbbb 0%, #bbbbbb 20.97152%, #444444 0%, #444444 26.2144%, #bbbbbb 0%, #bbbbbb 32.768%, #444444 0%, #444444 40.96%, #bbbbbb 0%, #bbbbbb 51.2%, #444444 0%, #444444 64%, #bbbbbb 0%, #bbbbbb 80%, #444444 0%, #444444 100%), repeating-conic-gradient(at 40% 75px, #bbb 0 3.125%, #444 0 6.25%);
+background-blend-mode: normal, multiply, exclusion, normal;
+background-position: center center;
+background-size: 100% 100%;
+		</code></pre>
+	</div>
+	<div class="gradient">
+		<div style="background: conic-gradient(at top, black, white, black); border-radius: 50%;"></div>
+		<pre><code>background: conic-gradient(at top, black, white, black);
+border-radius: 50%;
+		</code></pre>
+	</div>
+</body>
+</html>
